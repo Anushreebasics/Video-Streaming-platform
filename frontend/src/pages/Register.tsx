@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Video, User, Building2, Lock, Loader2, ArrowRight, ShieldCheck, Mail } from 'lucide-react';
+import { Video, User, Building2, Lock, Loader2, ArrowRight, ShieldCheck } from 'lucide-react';
 import api from '../utils/api';
 
 const Register: React.FC = () => {
     const [username, setUsername] = useState('');
-    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [organizationId, setOrganizationId] = useState('');
     const [role, setRole] = useState('viewer');
@@ -17,7 +16,7 @@ const Register: React.FC = () => {
         e.preventDefault();
         setIsLoading(true);
         try {
-            await api.post('/auth/register', { username, email, password, organizationId, role });
+            await api.post('/auth/register', { username, password, organizationId, role });
             navigate('/login');
         } catch (err: any) {
             setError(err.response?.data?.message || 'Registration failed');
@@ -117,21 +116,6 @@ const Register: React.FC = () => {
                             </div>
 
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-foreground">Email</label>
-                                <div className="relative">
-                                    <Mail className="absolute left-3 top-2.5 text-muted-foreground" size={18} />
-                                    <input
-                                        type="email"
-                                        required
-                                        value={email}
-                                        onChange={(e) => setEmail(e.target.value)}
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 pl-10"
-                                        placeholder="name@company.com"
-                                    />
-                                </div>
-                            </div>
-
-                            <div className="space-y-2">
                                 <label className="text-sm font-medium text-foreground">Password</label>
                                 <div className="relative">
                                     <Lock className="absolute left-3 top-2.5 text-muted-foreground" size={18} />
@@ -155,8 +139,8 @@ const Register: React.FC = () => {
                                             type="button"
                                             onClick={() => setRole(r)}
                                             className={`px-3 py-2 rounded-md text-sm font-medium capitalize border transition-all ${role === r
-                                                ? 'bg-primary text-primary-foreground border-primary'
-                                                : 'bg-background hover:bg-muted text-muted-foreground border-input'
+                                                    ? 'bg-primary text-primary-foreground border-primary'
+                                                    : 'bg-background hover:bg-muted text-muted-foreground border-input'
                                                 }`}
                                         >
                                             {r}

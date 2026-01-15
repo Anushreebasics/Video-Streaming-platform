@@ -42,7 +42,6 @@ export const getVideos = async (req: AuthRequest, res: Response): Promise<void> 
         const videos = await Video.find(query).populate('uploader', 'username');
         res.json(videos);
     } catch (error) {
-        console.error('Video error:', error);
         res.status(500).json({ message: 'Server error', error });
     }
 };
