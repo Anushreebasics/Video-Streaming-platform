@@ -2,8 +2,6 @@
 
 A modern, secure, and scalable video streaming application built with the MERN stack (MongoDB, Express, React, Node.js). Features real-time video processing, role-based access control, and a premium "Netflix-style" UI.
 
-![PulseStream UI](https://via.placeholder.com/800x400.png?text=PulseStream+Dashboard+Preview)
-
 ## 🚀 Key Features
 
 - **Secure Authentication**: JWT-based auth with Role-Based Access Control (Admin, Editor, Viewer).
