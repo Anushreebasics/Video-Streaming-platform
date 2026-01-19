@@ -15,6 +15,9 @@ A modern, secure, and scalable video streaming application built with the MERN s
 - **Multi-Tenancy**: Organization-based data isolation
 - **Error Handling**: Comprehensive error boundaries and user feedback
 
+## Demo Video
+<iframe src="[YOUR_EMBED_URL](https://drive.google.com/file/d/1EHQP7uZv_8-ODGDLVw-3ci38bhx9bVWa/preview)" width="100%" height="400" allow="autoplay; fullscreen; picture-in-picture" frameborder="0" loading="lazy"></iframe>
+
 ## 🛠 Tech Stack
 
 **Frontend:**
