@@ -1,11 +1,14 @@
 import React from 'react';
-import { LogOut, Video as VideoIcon, Sun, Moon, User as UserIcon } from 'lucide-react';
+import { LogOut, Video as VideoIcon, Sun, Moon, User as UserIcon, Shield, LayoutDashboard } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
+import { useNavigate, useLocation } from 'react-router-dom';
 
 const Navbar: React.FC = () => {
     const { user, logout } = useAuth();
     const { theme, toggleTheme } = useTheme();
+    const navigate = useNavigate();
+    const location = useLocation();
 
     return (
         <nav className="fixed top-0 w-full z-50 transition-all duration-300 bg-background/80 backdrop-blur-lg border-b border-border shadow-sm">
@@ -13,7 +16,7 @@ const Navbar: React.FC = () => {
                 <div className="flex items-center justify-between h-16">
 
                     {/* Logo */}
-                    <div className="flex items-center gap-2 group cursor-pointer">
+                    <div className="flex items-center gap-2 group cursor-pointer" onClick={() => navigate('/dashboard')}>
                         <div className="bg-gradient-to-tr from-blue-600 to-indigo-600 p-2 rounded-xl shadow-lg shadow-blue-500/20 group-hover:shadow-blue-500/40 transition-all duration-300 transform group-hover:scale-105">
                             <VideoIcon className="text-white w-5 h-5" />
                         </div>
@@ -24,6 +27,36 @@ const Navbar: React.FC = () => {
 
                     {/* Right Actions */}
                     <div className="flex items-center gap-4">
+                        
+                        {/* Navigation Links */}
+                        {user && (
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={() => navigate('/dashboard')}
+                                    className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                                        location.pathname === '/dashboard'
+                                            ? 'bg-primary text-primary-foreground'
+                                            : 'hover:bg-muted text-muted-foreground'
+                                    }`}
+                                >
+                                    <LayoutDashboard size={18} />
+                                    <span className="hidden sm:inline">Dashboard</span>
+                                </button>
+                                {user.role === 'admin' && (
+                                    <button
+                                        onClick={() => navigate('/admin')}
+                                        className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                                            location.pathname === '/admin'
+                                                ? 'bg-purple-500 text-white'
+                                                : 'hover:bg-muted text-muted-foreground'
+                                        }`}
+                                    >
+                                        <Shield size={18} />
+                                        <span className="hidden sm:inline">Admin</span>
+                                    </button>
+                                )}
+                            </div>
+                        )}
 
                         {/* Theme Toggle */}
                         <button

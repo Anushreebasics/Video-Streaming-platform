@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import PrivateRoute from './components/PrivateRoute';
 import Dashboard from './pages/Dashboard';
+import AdminPanel from './pages/AdminPanel';
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
               <Route path="/register" element={<Register />} />
               <Route element={<PrivateRoute />}>
                 <Route path="/dashboard" element={<Dashboard />} />
+                <Route path="/admin" element={<AdminPanel />} />
                 <Route path="/" element={<Navigate to="/dashboard" replace />} />
               </Route>
             </Routes>

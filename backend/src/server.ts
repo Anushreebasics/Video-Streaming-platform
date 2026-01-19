@@ -38,9 +38,11 @@ app.use((req, res, next) => {
 // Routes
 import authRoutes from './routes/authRoutes';
 import videoRoutes from './routes/videoRoutes';
+import userRoutes from './routes/userRoutes';
 
 app.use('/api/auth', authRoutes);
 app.use('/api/videos', videoRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is running' });
