@@ -16,7 +16,7 @@ A modern, secure, and scalable video streaming application built with the MERN s
 - **Error Handling**: Comprehensive error boundaries and user feedback
 
 ## Demo Video
-<iframe src="https://drive.google.com/file/d/1EHQP7uZv_8-ODGDLVw-3ci38bhx9bVWa/preview" width="640" height="480"></iframe>
+[Watch the video on Google Drive](https://drive.google.com/file/d/1EHQP7uZv_8-ODGDLVw-3ci38bhx9bVWa/preview)
 
 ## 🛠 Tech Stack
 
