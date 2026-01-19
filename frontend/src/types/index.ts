@@ -35,6 +35,8 @@ export interface Video {
     status: VideoStatus;
     sensitivity: SensitivityStatus;
     size: number;
+    duration?: number;
+    processingProgress?: number;
     createdAt: string;
     uploader?: {
         username: string;

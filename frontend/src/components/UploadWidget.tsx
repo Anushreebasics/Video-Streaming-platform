@@ -52,8 +52,9 @@ const UploadWidget: React.FC<UploadWidgetProps> = ({ onUploadSuccess }) => {
             setProgress(0);
             onUploadSuccess();
             setTimeout(() => setSuccess(false), 3000);
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Upload failed');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Upload failed');
         } finally {
             setUploading(false);
         }

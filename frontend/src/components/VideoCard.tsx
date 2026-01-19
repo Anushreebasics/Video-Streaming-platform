@@ -12,9 +12,19 @@ const VideoCard: React.FC<VideoCardProps> = ({ video, onClick }) => {
     const getStatusBadge = (status: string, sensitivity: string) => {
         if (status === 'processing') {
             return (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-500 text-xs font-medium border border-blue-500/20 backdrop-blur-md">
-                    <Loader size={12} className="animate-spin" />
-                    <span>Processing</span>
+                <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-500 text-xs font-medium border border-blue-500/20 backdrop-blur-md">
+                        <Loader size={12} className="animate-spin" />
+                        <span>Processing</span>
+                    </div>
+                    {video.processingProgress !== undefined && (
+                        <div className="w-full bg-black/40 rounded-full h-1.5 overflow-hidden">
+                            <div 
+                                className="bg-blue-500 h-full transition-all duration-300"
+                                style={{ width: `${video.processingProgress}%` }}
+                            />
+                        </div>
+                    )}
                 </div>
             );
         }

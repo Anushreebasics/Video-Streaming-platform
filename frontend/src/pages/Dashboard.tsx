@@ -16,10 +16,12 @@ const Dashboard: React.FC = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [socket, setSocket] = useState<Socket | null>(null);
     const [loading, setLoading] = useState(true);
+    const [sensitivityFilter, setSensitivityFilter] = useState<string>('all');
+    const [statusFilter, setStatusFilter] = useState<string>('all');
 
     useEffect(() => {
         fetchVideos();
-        const newSocket = io('http://localhost:5001');
+        const newSocket = io('http://localhost:5002');
         setSocket(newSocket);
 
         if (user?.organizationId) {
@@ -27,12 +29,18 @@ const Dashboard: React.FC = () => {
         }
 
         newSocket.on('video_processing_start', ({ videoId }) => {
-            setVideos(prev => prev.map(v => v._id === videoId ? { ...v, status: 'processing' } : v));
+            setVideos(prev => prev.map(v => v._id === videoId ? { ...v, status: 'processing', processingProgress: 0 } : v));
+        });
+
+        newSocket.on('video_progress', ({ videoId, progress }) => {
+            setVideos(prev => prev.map(v =>
+                v._id === videoId ? { ...v, processingProgress: progress } : v
+            ));
         });
 
         newSocket.on('video_processed', ({ videoId, status, sensitivity }) => {
             setVideos(prev => prev.map(v =>
-                v._id === videoId ? { ...v, status, sensitivity } : v
+                v._id === videoId ? { ...v, status, sensitivity, processingProgress: 100 } : v
             ));
         });
 
@@ -44,7 +52,10 @@ const Dashboard: React.FC = () => {
     const fetchVideos = async () => {
         try {
             setLoading(true);
-            const res = await api.get('/videos');
+            const params = new URLSearchParams();
+            if (sensitivityFilter !== 'all') params.append('sensitivity', sensitivityFilter);
+            if (statusFilter !== 'all') params.append('status', statusFilter);
+            const res = await api.get(`/videos?${params.toString()}`);
             setVideos(res.data);
         } catch (err) {
             console.error('Failed to fetch videos', err);
@@ -52,6 +63,10 @@ const Dashboard: React.FC = () => {
             setLoading(false);
         }
     };
+
+    useEffect(() => {
+        fetchVideos();
+    }, [sensitivityFilter, statusFilter]);
 
     return (
         <div className="min-h-screen bg-background text-foreground transition-colors duration-300">
@@ -97,6 +112,37 @@ const Dashboard: React.FC = () => {
                                     </div>
                                     <div className="hidden sm:block text-sm text-muted-foreground bg-secondary px-3 py-1 rounded-full border border-border">
                                         {videos.length} Videos
+                                    </div>
+                                </div>
+
+                                {/* Filter Section */}
+                                <div className="flex flex-wrap gap-4 mb-6 p-4 bg-secondary/30 rounded-xl border border-border">
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-sm font-medium">Sensitivity:</label>
+                                        <select
+                                            value={sensitivityFilter}
+                                            onChange={(e) => setSensitivityFilter(e.target.value)}
+                                            className="px-3 py-1.5 text-sm rounded-md border border-border bg-background"
+                                        >
+                                            <option value="all">All</option>
+                                            <option value="safe">Safe</option>
+                                            <option value="flagged">Flagged</option>
+                                            <option value="unknown">Unknown</option>
+                                        </select>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        <label className="text-sm font-medium">Status:</label>
+                                        <select
+                                            value={statusFilter}
+                                            onChange={(e) => setStatusFilter(e.target.value)}
+                                            className="px-3 py-1.5 text-sm rounded-md border border-border bg-background"
+                                        >
+                                            <option value="all">All</option>
+                                            <option value="uploaded">Uploaded</option>
+                                            <option value="processing">Processing</option>
+                                            <option value="completed">Completed</option>
+                                            <option value="failed">Failed</option>
+                                        </select>
                                     </div>
                                 </div>
 

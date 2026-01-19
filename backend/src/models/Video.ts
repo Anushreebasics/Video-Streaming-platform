@@ -19,9 +19,11 @@ export interface IVideo extends Document {
     path: string;
     mimetype: string;
     size: number;
+    duration?: number;
     uploader: mongoose.Types.ObjectId;
     status: VideoStatus;
     sensitivity: SensitivityStatus;
+    processingProgress: number;
     organizationId: string;
     createdAt: Date;
 }
@@ -32,6 +34,7 @@ const VideoSchema: Schema = new Schema({
     path: { type: String, required: true },
     mimetype: { type: String, required: true },
     size: { type: Number, required: true },
+    duration: { type: Number, default: 0 },
     uploader: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     status: {
         type: String,
@@ -43,6 +46,7 @@ const VideoSchema: Schema = new Schema({
         enum: Object.values(SensitivityStatus),
         default: SensitivityStatus.UNKNOWN
     },
+    processingProgress: { type: Number, default: 0 },
     organizationId: { type: String, required: true },
 }, { timestamps: true });
 

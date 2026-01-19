@@ -33,13 +33,22 @@ export const uploadVideo = async (req: AuthRequest, res: Response): Promise<void
 
 export const getVideos = async (req: AuthRequest, res: Response): Promise<void> => {
     try {
-        const { role, organizationId } = req.user;
-        let query = { organizationId }; // Multi-tenancy isolation
+        const { organizationId } = req.user;
+        let query: any = { organizationId }; // Multi-tenancy isolation
 
-        // If implementing strict RBAC where only specific roles see certain videos, add here.
-        // For now, users see all videos in their org.
+        // Add filtering by sensitivity status
+        if (req.query.sensitivity && req.query.sensitivity !== 'all') {
+            query.sensitivity = req.query.sensitivity;
+        }
 
-        const videos = await Video.find(query).populate('uploader', 'username');
+        // Add filtering by processing status
+        if (req.query.status && req.query.status !== 'all') {
+            query.status = req.query.status;
+        }
+
+        const videos = await Video.find(query)
+            .populate('uploader', 'username')
+            .sort({ createdAt: -1 });
         res.json(videos);
     } catch (error) {
         res.status(500).json({ message: 'Server error', error });

@@ -7,7 +7,7 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer: React.FC<VideoPlayerProps> = ({ video, token }) => {
-    const streamUrl = `http://localhost:5001/api/videos/${video._id}/stream?token=${token}`;
+    const streamUrl = `http://localhost:5002/api/videos/${video._id}/stream?token=${token}`;
 
     return (
         <div className="w-full bg-black rounded-xl overflow-hidden aspect-video relative group">

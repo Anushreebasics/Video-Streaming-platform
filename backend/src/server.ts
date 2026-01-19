@@ -3,19 +3,37 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import { createServer } from 'http';
 import { Server } from 'socket.io';
-import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
 
 dotenv.config();
 
 import { initSocket } from './utils/socket';
+import connectDatabase from './config/database';
 
 const app = express();
 const httpServer = createServer(app);
 const io = initSocket(httpServer);
 
 // Middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}));
 app.use(express.json());
+
+// Debug Logging
+app.use((req, res, next) => {
+    const log = `\n${new Date().toISOString()} - ${req.method} ${req.url}\nHeaders: ${JSON.stringify(req.headers)}\nBody: ${JSON.stringify(req.body)}\n`;
+    fs.appendFileSync(path.join(__dirname, '../debug_requests.log'), log);
+
+    const originalSend = res.send;
+    res.send = function (body) {
+        fs.appendFileSync(path.join(__dirname, '../debug_requests.log'), `Response ${res.statusCode}: ${body}\n`);
+        return originalSend.call(this, body);
+    };
+    next();
+});
 
 // Routes
 import authRoutes from './routes/authRoutes';
@@ -43,16 +61,27 @@ io.on('connection', (socket) => {
 });
 
 // Database & Server Start
-const PORT = process.env.PORT || 5000;
-const MONGO_URI = process.env.MONGO_URI || 'mongodb://localhost:27017/videostreaming';
+const DEFAULT_PORT = 5001;
+const PORT = parseInt(process.env.PORT || '') || DEFAULT_PORT;
 
-mongoose.connect(MONGO_URI)
+connectDatabase()
     .then(() => {
-        console.log('Connected to MongoDB');
-        httpServer.listen(PORT, () => {
-            console.log(`Server running on port ${PORT}`);
-        });
+        const startServer = (port: number) => {
+            httpServer.listen(port, () => {
+                console.log(`🚀 Server running on http://localhost:${port}`);
+            }).on('error', (err: any) => {
+                if (err.code === 'EADDRINUSE') {
+                    const fallbackPort = port + 1;
+                    console.warn(`⚠️  Port ${port} in use, attempting fallback port ${fallbackPort}`);
+                    startServer(fallbackPort);
+                } else {
+                    console.error('Server error:', err);
+                }
+            });
+        };
+        startServer(PORT);
     })
     .catch((err) => {
-        console.error('MongoDB connection error:', err);
+        console.error('Failed to start server:', err);
+        process.exit(1);
     });

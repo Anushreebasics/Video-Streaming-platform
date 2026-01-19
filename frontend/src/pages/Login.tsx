@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; // Added Link import
+import { useNavigate, Link } from 'react-router-dom';
 import { Video, Mail, Lock, Loader2, ArrowRight } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
+import api from '../utils/api';
 
 const Login: React.FC = () => {
     const [email, setEmail] = useState('');
@@ -16,8 +17,9 @@ const Login: React.FC = () => {
             const { data } = await api.post('/auth/login', { email, password });
             login(data.token, data.user);
             navigate('/dashboard');
-        } catch (err: any) {
-            setError(err.response?.data?.message || 'Login failed');
+        } catch (err: unknown) {
+            const error = err as { response?: { data?: { message?: string } } };
+            setError(error.response?.data?.message || 'Login failed');
         }
     };
 
