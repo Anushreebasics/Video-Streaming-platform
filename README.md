@@ -10,10 +10,8 @@ A modern, secure, and scalable video streaming application built with the MERN s
 - **Adaptive Streaming**: HTTP Range Requests for smooth playback and seeking
 - **Real-Time Progress**: Live processing updates (0-100%) with Socket.io
 - **Advanced Filtering**: Filter videos by sensitivity status and processing status
-- **Premium UI/UX**: 
-  - Fully Responsive Glassmorphism Design
-  - Dark/Light Theme Switching
-  - Animated Interactions & Progress Indicators
+- **Admin Panel**: User management, organization statistics, role assignment
+- **Premium UI/UX**: Fully responsive, dark/light theme, animated interactions
 - **Multi-Tenancy**: Organization-based data isolation
 - **Error Handling**: Comprehensive error boundaries and user feedback
 
@@ -52,16 +50,16 @@ cd backend
 npm install
 
 # Create .env file
-echo "PORT=5001
+cat > .env << EOF
+PORT=5002
 MONGO_URI=mongodb://localhost:27017/videostreaming
-JWT_SECRET=your_super_secret_jwt_key_change_in_production" > .env
+JWT_SECRET=your_super_secret_jwt_key_change_in_production
+EOF
 
-# Build and start
-npm run build
 npm run dev
 ```
 
-Backend runs on `http://localhost:5001`
+Backend runs on `http://localhost:5002`
 
 ### 3. Frontend Setup
 ```bash
@@ -76,155 +74,175 @@ Frontend runs on `http://localhost:5173`
 
 ## 📚 Documentation
 
-- **[Complete Documentation](./DOCUMENTATION.md)** - Full application guide, architecture, API docs
-- **[API Reference](./API.md)** - Detailed REST API and WebSocket documentation  
-- **[Deployment Guide](./DEPLOYMENT.md)** - Deploy to Heroku, Netlify, MongoDB Atlas
+- **[Complete Documentation](./DOCUMENTATION.md)** - Full architecture, API docs
+- **[API Reference](./API.md)** - Detailed REST & WebSocket documentation  
+- **[Deployment Guide](./DEPLOYMENT.md)** - Deploy to Heroku & Netlify
 
 ---
 
-## 🎬 Complete User Journey
+## 🎬 User Journey
 
 1. **Register/Login** → Secure JWT authentication
 2. **Upload Video** → Drag-and-drop with progress tracking
-3. **Real-Time Processing** → Watch live progress (0-100%)
-4. **Content Review** → View sensitivity status (Safe/Flagged)
+3. **Real-Time Processing** → Watch live 0-100% progress
+4. **Content Review** → View sensitivity status
 5. **Stream Videos** → HTTP range requests for smooth playback
-6. **Filter & Manage** → Advanced filtering by status and sensitivity
+6. **Filter & Manage** → Advanced filtering
 
 ---
 
 ## 👥 User Roles (RBAC)
 
-| Role | View Videos | Upload Videos | Manage System |
-|------|------------|---------------|---------------|
-| **Viewer** | ✅ | ❌ | ❌ |
-| **Editor** | ✅ | ✅ | ❌ |
-| **Admin** | ✅ | ✅ | ✅ |
+| Role | View Videos | Upload Videos | Manage Users | System Settings |
+|------|------------|---------------|--------------|-----------------|
+| **Viewer** | ✅ | ❌ | ❌ | ❌ |
+| **Editor** | ✅ | ✅ | ❌ | ❌ |
+| **Admin** | ✅ | ✅ | ✅ | ✅ |
+
+**Admin Capabilities:**
+- Create, edit, and delete users
+- Assign and modify user roles
+- View organization statistics
+- Full system access
 
 ---
 
-## 📡 Key API Endpoints
+## 📡 API Endpoints
 
+**Authentication:**
 ```http
 POST   /api/auth/register         # Register new user
 POST   /api/auth/login            # Login user
-POST   /api/videos                # Upload video (Editor/Admin)
-GET    /api/videos                # Get all videos (with filters)
-GET    /api/videos/:id/stream     # Stream video (range requests)
-GET    /health                    # Health check
 ```
 
-### Real-Time Events (Socket.io)
+**Videos:**
+```http
+POST   /api/videos                # Upload video
+GET    /api/videos                # Get all videos with filters
+GET    /api/videos/:id/stream     # Stream video
+```
+
+**User Management (Admin Only):**
+```http
+GET    /api/users                 # Get all users
+GET    /api/users/stats           # Get organization statistics
+GET    /api/users/:id             # Get single user
+POST   /api/users                 # Create new user
+PUT    /api/users/:id             # Update user
+DELETE /api/users/:id             # Delete user
+```
+
+**Real-Time Events (Socket.io):**
 ```javascript
-socket.on('video_processing_start', ...)  // Processing started
-socket.on('video_progress', ...)          // Progress update (0-100%)
+socket.on('video_progress', ...)          // Progress 0-100%
 socket.on('video_processed', ...)         // Processing complete
 ```
 
 ---
 
-## 🧪 Testing the Application
+## 🧪 Testing
 
-1. **Register** with different roles (viewer, editor, admin)
-2. **Login** and verify token storage
+1. **Register** with different roles
+2. **Login** and verify token
 3. **Upload a video** (as Editor/Admin)
-4. **Watch real-time processing** progress (0-100%)
-5. **Play video** with seek functionality
-6. **Test filters** (Safe/Flagged, Processing/Completed)
+4. **Watch real-time progress** (0-100%)
+5. **Play video** with seek
+6. **Test filters** (Status, Sensitivity)
 7. **Test RBAC** (Viewer can't upload)
+8. **Admin Panel** (as Admin):
+   - View all users
+   - Create/Edit/Delete users
+   - View statistics
 
 ---
 
-## 📊 Project Structure
+## 📂 Project Structure
 
 ```
 pulse/
 ├── backend/
 │   ├── src/
-│   │   ├── config/          # Database configuration
-│   │   ├── controllers/     # Request handlers
-│   │   ├── middleware/      # Auth, RBAC, Upload
-│   │   ├── models/          # MongoDB schemas
-│   │   ├── routes/          # API routes
-│   │   ├── services/        # Business logic
-│   │   ├── utils/           # Socket.io setup
-│   │   └── server.ts        # Express app
-│   └── uploads/             # Video storage
+│   │   ├── config/
+│   │   ├── controllers/
+│   │   │   ├── authController.ts
+│   │   │   ├── videoController.ts
+│   │   │   └── userController.ts      (Admin)
+│   │   ├── middleware/
+│   │   │   ├── auth.ts
+│   │   │   ├── rbac.ts
+│   │   │   └── upload.ts
+│   │   ├── models/
+│   │   ├── routes/
+│   │   │   ├── authRoutes.ts
+│   │   │   ├── videoRoutes.ts
+│   │   │   └── userRoutes.ts         (Admin)
+│   │   ├── services/
+│   │   ├── utils/
+│   │   └── server.ts
+│   └── uploads/
 │
 ├── frontend/
 │   ├── src/
-│   │   ├── components/      # Reusable UI components
-│   │   ├── context/         # React Context (Auth, Theme)
-│   │   ├── pages/           # Page components
-│   │   ├── types/           # TypeScript types
-│   │   └── utils/           # API client, utilities
-│   └── ...
+│   │   ├── components/
+│   │   │   ├── Navbar.tsx
+│   │   │   ├── UploadWidget.tsx
+│   │   │   ├── VideoPlayer.tsx
+│   │   │   └── ...
+│   │   ├── context/
+│   │   ├── pages/
+│   │   │   ├── Dashboard.tsx
+│   │   │   ├── Login.tsx
+│   │   │   ├── Register.tsx
+│   │   │   └── AdminPanel.tsx        (Admin)
+│   │   ├── types/
+│   │   └── utils/
 │
-├── DOCUMENTATION.md         # Complete documentation
-├── API.md                   # API reference
-├── DEPLOYMENT.md            # Deployment guide
-└── README.md                # This file
+├── DOCUMENTATION.md
+├── API.md
+├── DEPLOYMENT.md
+└── README.md
 ```
 
 ---
 
-## ✅ Success Criteria Checklist
+## ✅ Completed Features
 
-✅ Complete video upload and storage system  
-✅ Real-time processing progress updates (0-100%)  
-✅ Video sensitivity analysis and classification  
-✅ Secure video streaming with range requests  
+✅ Video upload and storage  
+✅ Real-time progress tracking (0-100%)  
+✅ Video sensitivity analysis  
+✅ Secure streaming with range requests  
 ✅ Multi-tenant user isolation  
-✅ Role-based access control implementation  
-✅ Clean, maintainable code structure  
+✅ Role-based access control  
+✅ Admin user management system  
+✅ Organization statistics  
+✅ Clean, maintainable code  
 ✅ Comprehensive documentation  
-✅ Secure authentication and authorization  
-✅ Responsive and intuitive user interface  
-✅ Proper error handling and user feedback  
-✅ Advanced filtering capabilities  
+✅ Secure authentication  
+✅ Responsive UI with theme switching  
+✅ Error handling & user feedback  
+✅ Advanced filtering  
 
 ---
 
 ## 🚀 Deployment
 
-Ready to deploy? Check out the [Deployment Guide](./DEPLOYMENT.md) for:
+Check out the [Deployment Guide](./DEPLOYMENT.md) for:
 - MongoDB Atlas setup
 - Heroku backend deployment
 - Netlify frontend deployment
 - Environment configuration
-- CI/CD setup
 
 ---
 
 ## 🔐 Security Features
 
-- JWT authentication with 1-day expiration
+- JWT authentication (1-day expiration)
 - BCrypt password hashing (10 rounds)
-- Role-based access control (RBAC)
+- Role-based access control
 - Multi-tenant data isolation
-- File upload validation (type, size)
+- File upload validation
 - CORS configuration
-- Comprehensive error handling
-
----
-
-## 📈 Future Enhancements
-
-- [ ] FFmpeg integration for real video processing
-- [ ] Video thumbnails generation
-- [ ] Multiple quality levels (360p, 720p, 1080p)
-- [ ] AWS S3 file storage
-- [ ] CDN integration
-- [ ] Advanced search & tagging
-- [ ] Comments & ratings system
-- [ ] Email notifications
-- [ ] Admin dashboard with analytics
-
----
-
-## 📝 License
-
-MIT License - Educational purposes
+- Admin-only endpoint protection
 
 ---
 
@@ -232,100 +250,31 @@ MIT License - Educational purposes
 
 **MongoDB Connection Failed:**
 ```bash
-# Ensure MongoDB is running
 brew services start mongodb-community  # macOS
 sudo systemctl start mongod           # Linux
 ```
 
 **Port Already in Use:**
 ```bash
-# Kill process on port
-lsof -ti:5001 | xargs kill -9   # Backend
+lsof -ti:5002 | xargs kill -9   # Backend
 lsof -ti:5173 | xargs kill -9   # Frontend
 ```
 
-**Upload Failed:**
-- Verify `uploads/` directory exists in backend
-- Check file size < 50MB
-- Ensure video MIME type
-
-For more troubleshooting, see [DOCUMENTATION.md](./DOCUMENTATION.md)
+**API Connection Failed:**
+- Hard refresh page (Cmd/Ctrl + Shift + R)
+- Verify backend running on port 5002
+- Check console errors (F12)
 
 ---
 
 ## 📞 Support
 
-- 📖 [Complete Documentation](./DOCUMENTATION.md)
+- 📖 [Documentation](./DOCUMENTATION.md)
 - 📡 [API Reference](./API.md)
-- 🚀 [Deployment Guide](./DEPLOYMENT.md)
+- 🚀 [Deployment](./DEPLOYMENT.md)
 
 ---
 
-**Built with ❤️ for the Video Streaming Application Assignment**
+**Built with ❤️ for Video Streaming Application Assignment**
 
 🎉 **Application Ready for Production!**
-
-### 2. Backend Setup
-Navigate to the backend folder and install dependencies:
-```bash
-cd backend
-npm install
-```
-
-Create a `.env` file in `backend/.env`:
-```env
-PORT=5001
-MONGO_URI=mongodb://localhost:27017/pulse_db
-JWT_SECRET=your_super_secret_key_change_this
-```
-
-Start the backend server:
-```bash
-npm run dev
-```
-*Server runs on: `http://localhost:5001`*
-
-### 3. Frontend Setup
-Open a new terminal, navigate to the frontend folder, and install dependencies:
-```bash
-cd frontend
-npm install
-```
-
-Start the frontend development server:
-```bash
-npm run dev
-```
-*Client runs on: `http://localhost:5173`*
-
----
-
-## 🧪 Testing the App
-
-1. **Register**: Go to `/register` and create an account (Role: `Editor` to upload videos).
-2. **Login**: Sign in with your new credentials.
-3. **Upload**: Use the Upload Widget in the Dashboard sidebar to upload an `.mp4` file.
-4. **Watch**: Click on a video card to stream it using the secure player.
-5. **Theme**: Toggle Light/Dark mode using the icon in the Navbar.
-
-## 📂 Project Structure
-
-```
-├── backend/            # Express Server & API Types
-│   ├── src/
-│   │   ├── controllers/ # Route Logic
-│   │   ├── models/      # Mongoose Schemas
-│   │   ├── routes/      # Endpoints
-│   │   └── services/    # Business Logic (Processing)
-│   └── uploads/         # Video Storage
-│
-├── frontend/           # React Application
-│   ├── src/
-│   │   ├── components/  # Reusable UI Components
-│   │   ├── context/     # Auth & Theme State
-│   │   ├── pages/       # Route Views (Dashboard, Login)
-│   │   └── types/       # Shared TypeScript Interfaces
-```
-
-## 📜 License
-This project is open-source and available under the MIT License.
